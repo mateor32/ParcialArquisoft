@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pedidos-api:latest
+    ports:
+      - "8080:8080"
+    environment:
+      # By default the app uses H2 in-memory. To use Postgres, set SPRING_PROFILES_ACTIVE=postgresql
+      SPRING_PROFILES_ACTIVE: ""
+    depends_on: []
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: pedidosdb
+      POSTGRES_USER: pedidos
+      POSTGRES_PASSWORD: pedidos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: pedidos-frontend:latest
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+    driver: local

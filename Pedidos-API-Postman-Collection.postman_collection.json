@@ -1,0 +1,300 @@
+{
+  "info": {
+    "_postman_id": "equipo4-pedidos-api-v1",
+    "name": "Equipo 4 - Pedidos API v1",
+    "description": "Colección de requests para la API REST de Gestión de Pedidos.\n\nStack: Spring Boot 3 + Java 17 + H2/PostgreSQL + HATEOAS + OpenAPI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "item": [
+    {
+      "name": "Pedidos",
+      "item": [
+        {
+          "name": "Crear Pedido (POST)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validar que la respuesta sea 201 Created",
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Validar que el cuerpo contiene el ID del pedido",
+                  "pm.test('Response contains idPedido', function () {",
+                  "    let jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('idPedido');",
+                  "});",
+                  "",
+                  "// Guardar el ID del pedido para usarlo en otras requests",
+                  "let jsonData = pm.response.json();",
+                  "pm.environment.set('pedidoId', jsonData.idPedido);",
+                  "",
+                  "// Validar header Location",
+                  "pm.test('Location header exists', function () {",
+                  "    pm.response.to.have.header('Location');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/vnd.equipo4.v1+json",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/vnd.equipo4.v1+json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombreCliente\": \"Juan Pérez\",\n  \"direccion\": \"Calle 10 #5-20\",\n  \"telefono\": \"3001234567\",\n  \"descripcion\": \"1 Hamburguesa, 1 Gaseosa\",\n  \"total\": 25000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pedidos",
+              "host": ["{{baseUrl}}"],
+              "path": ["pedidos"]
+            },
+            "description": "Crea un nuevo pedido. Si el cliente no existe, se crea automáticamente.\n\nVERSIONAMIENTO: Accept Header 'application/vnd.equipo4.v1+json'\n\nRESPUESTA: 201 Created + Location header + EntityModel con enlaces HATEOAS"
+          },
+          "response": [
+            {
+              "name": "Pedido Creado (201)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/vnd.equipo4.v1+json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/vnd.equipo4.v1+json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombreCliente\": \"Juan Pérez\",\n  \"direccion\": \"Calle 10 #5-20\",\n  \"telefono\": \"3001234567\",\n  \"descripcion\": \"1 Hamburguesa, 1 Gaseosa\",\n  \"total\": 25000\n}"
+                },
+                "url": {
+                  "raw": "http://localhost:8080/api/pedidos",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "8080",
+                  "path": ["api", "pedidos"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.equipo4.v1+json;charset=UTF-8"
+                },
+                {
+                  "key": "Location",
+                  "value": "http://localhost:8080/api/pedidos/1"
+                }
+              ],
+              "body": "{\n  \"idPedido\": 1,\n  \"estado\": \"Ingresado\",\n  \"nombreCliente\": \"Juan Pérez\",\n  \"direccion\": \"Calle 10 #5-20\",\n  \"fechaHoraEstimadaEntrega\": \"2026-06-12T15:30:45.123456\",\n  \"descripcion\": \"1 Hamburguesa, 1 Gaseosa\",\n  \"total\": \"25000\",\n  \"fechaCreacion\": \"2026-06-12T14:45:45.123456\",\n  \"_links\": {\n    \"self\": {\n      \"href\": \"http://localhost:8080/api/pedidos/1\"\n    },\n    \"all-pedidos\": {\n      \"href\": \"http://localhost:8080/api/pedidos\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Obtener Pedido por ID (GET)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validar que la respuesta sea 200 OK",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Validar que el cuerpo contiene el idPedido",
+                  "pm.test('Response contains idPedido', function () {",
+                  "    let jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('idPedido');",
+                  "});",
+                  "",
+                  "// Validar que contiene enlaces HATEOAS",
+                  "pm.test('Response contains _links', function () {",
+                  "    let jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('_links');",
+                  "});",
+                  "",
+                  "// Validar que el estado es válido",
+                  "pm.test('Response contains valid estado', function () {",
+                  "    let jsonData = pm.response.json();",
+                  "    pm.expect(['Ingresado', 'En Procesamiento', 'Despachado', 'Entregado']).to.include(jsonData.estado);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/vnd.equipo4.v1+json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/pedidos/{{pedidoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["pedidos", "{{pedidoId}}"]
+            },
+            "description": "Obtiene los detalles de un pedido específico por su ID.\n\nVERSIONAMIENTO: Accept Header 'application/vnd.equipo4.v1+json'\n\nRESPUESTA: 200 OK + EntityModel con enlaces HATEOAS\n\nNOTA: Usa {{pedidoId}} que se guarda automáticamente después de crear un pedido"
+          },
+          "response": [
+            {
+              "name": "Pedido Encontrado (200)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/vnd.equipo4.v1+json"
+                  }
+                ],
+                "url": {
+                  "raw": "http://localhost:8080/api/pedidos/1",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "8080",
+                  "path": ["api", "pedidos", "1"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.equipo4.v1+json;charset=UTF-8"
+                }
+              ],
+              "body": "{\n  \"idPedido\": 1,\n  \"estado\": \"Ingresado\",\n  \"nombreCliente\": \"Juan Pérez\",\n  \"direccion\": \"Calle 10 #5-20\",\n  \"fechaHoraEstimadaEntrega\": \"2026-06-12T15:30:45.123456\",\n  \"descripcion\": \"1 Hamburguesa, 1 Gaseosa\",\n  \"total\": \"25000\",\n  \"fechaCreacion\": \"2026-06-12T14:45:45.123456\",\n  \"_links\": {\n    \"self\": {\n      \"href\": \"http://localhost:8080/api/pedidos/1\"\n    },\n    \"all-pedidos\": {\n      \"href\": \"http://localhost:8080/api/pedidos\"\n    },\n    \"cancelar\": {\n      \"href\": \"/api/pedidos/1/cancelar\"\n    }\n  }\n}"
+            },
+            {
+              "name": "Pedido No Encontrado (404)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/vnd.equipo4.v1+json"
+                  }
+                ],
+                "url": {
+                  "raw": "http://localhost:8080/api/pedidos/999",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "8080",
+                  "path": ["api", "pedidos", "999"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/vnd.equipo4.v1+json;charset=UTF-8"
+                }
+              ],
+              "body": "{\n  \"status\": 404,\n  \"timestamp\": \"2026-06-12T14:45:45\",\n  \"mensaje\": \"Pedido no encontrado con ID: 999\",\n  \"detalle\": \"El recurso solicitado no existe\",\n  \"timestamp_response\": \"2026-06-12T14:45:45\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Documentación",
+      "item": [
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/swagger-ui.html",
+              "host": ["{{baseUrl}}"],
+              "path": ["swagger-ui.html"]
+            },
+            "description": "Abre la documentación interactiva de la API (Swagger/OpenAPI).\n\nURL: http://localhost:8080/api/swagger-ui.html"
+          }
+        },
+        {
+          "name": "OpenAPI Spec (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v3/api-docs",
+              "host": ["{{baseUrl}}"],
+              "path": ["v3", "api-docs"]
+            },
+            "description": "Retorna el esquema OpenAPI en formato JSON.\n\nURL: http://localhost:8080/api/v3/api-docs"
+          }
+        },
+        {
+          "name": "H2 Console",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/h2-console",
+              "host": ["{{baseUrl}}"],
+              "path": ["h2-console"]
+            },
+            "description": "Accede a la consola de H2 Database para ver/editar la BD directamente.\n\nURL: http://localhost:8080/api/h2-console\n\nCredenciales:\n- Driver: org.h2.Driver\n- JDBC URL: jdbc:h2:mem:pedidosdb\n- User: sa\n- Password: (vacío)"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "pedidoId",
+      "value": "1",
+      "type": "string"
+    }
+  ]
+}
